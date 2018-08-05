@@ -31,7 +31,11 @@ class TaskView extends StatefulWidget {
 }
 
 class TaskViewState extends State<TaskView> {
-  static List<Priority> priorities = <Priority>[const Priority("Low", 1), const Priority("Medium", 2), const Priority("High", 3)];
+  static List<Priority> priorities = <Priority>[
+    const Priority("Low", 1),
+    const Priority("Medium", 2),
+    const Priority("High", 3)
+  ];
 
   final _formKey = GlobalKey<FormState>();
   var _selectedPriority = priorities[1];
@@ -40,82 +44,75 @@ class TaskViewState extends State<TaskView> {
   Widget build(BuildContext context) {
     return Form(
         key: _formKey,
-        child: Column(
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(bottom: 20.0, top: 20.0),
+        child:  new LayoutBuilder(builder: (BuildContext context, BoxConstraints viewportConstraints){
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: new BoxConstraints(
+                minHeight: viewportConstraints.maxHeight,
+              ),
               child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  Text("Task Name"),
-                  TextFormField(
-                    // The validator receives the text the user has typed in
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                    },
-                  ),
-                ],
-              )),
-            Container(
-                margin: EdgeInsets.only(bottom: 20.0, top: 20.0),
-                child: Column(
-                  children: <Widget>[
-                    Text("Description"),
-                    TextFormField(
-                      // The validator receives the text the user has typed in
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return 'Please enter some text';
-                        }
-                      },
-                    ),
-                  ],
-            )),
-            Container(
-              margin: EdgeInsets.only(bottom: 20.0, top: 20.0),
-              child: Column(
-                children: <Widget>[
-                Text("Priority"),
-                new DropdownButton<Priority>(
-                  hint: new Text("Select a priority"),
-                  value: _selectedPriority,
-                  onChanged: (Priority newValue) {
-                    setState(() {
-                      _selectedPriority = newValue;
-                    });
-                  },
-                  items: priorities.map((Priority priority) {
-                    print(priorities[2]);
-                    return new DropdownMenuItem<Priority>(
-                      value: priority,
-                      child: new Text(
-                        priority.name,
-                        style: new TextStyle(color: Colors.black),
+                  _createValidatedFormTextField("Task Name"),
+                  _createValidatedFormTextField("Description"),
+                  Column(
+                    children: <Widget>[
+                      Text("Priority"),
+                      new DropdownButton<Priority>(
+                        hint: new Text("Select a priority"),
+                        value: _selectedPriority,
+                        onChanged: (Priority newValue) {
+                          setState(() {
+                            _selectedPriority = newValue;
+                          });
+                        },
+                        items: priorities.map((Priority priority) {
+                          print(priorities[2]);
+                          return new DropdownMenuItem<Priority>(
+                            value: priority,
+                            child: new Text(
+                              priority.name,
+                              style: new TextStyle(color: Colors.black),
+                            ),
+                          );
+                        }).toList(),
                       ),
-                    );
-                  }).toList(),
-                )],
-              )
+                    ],
+                  ),
+                  Align(
+                    child: RaisedButton(
+                      child: Text("Add"),
+                      color: Colors.lightBlue,
+                      onPressed: _onAdd,
+                      textColor: Colors.white,
+                    ),
+                    alignment: Alignment.bottomCenter,
+                  )
+                ],
+              ),
             ),
-            Flexible(child:
-              Align(
-                child: RaisedButton(child:
-                Text("Add"),
-                  color: Colors.lightBlue,
-                  onPressed: _onAdd,
-                  textColor: Colors.white,),
-                alignment: Alignment.bottomCenter,
-              )
-            )
-          ],
-        ));
+          );
+        })
+    );
+  }
+
+  Widget _createValidatedFormTextField(String name) {
+    return TextFormField(
+      // The validator receives the text the user has typed in
+      decoration: new InputDecoration(hintText: name),
+      validator: (value) {
+        if (value.isEmpty) {
+          return 'Please enter some text';
+        }
+      },
+    );
   }
 
   void _onAdd() {}
 }
 
-class Priority{
+class Priority {
   const Priority(this.name, this.level);
 
   final String name;
